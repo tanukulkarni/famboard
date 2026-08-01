@@ -1,6 +1,6 @@
-# Home Dashboard Roadmap
+# Antique Family Planner Roadmap
 
-Planned features and improvements for the TK & AX household board.
+Planned features and improvements for the household board.
 
 ---
 

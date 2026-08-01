@@ -1,4 +1,4 @@
-# TK & AX Home Dashboard
+# Antique Family Planner
 
 A lightweight household board built with Flask and SQLite. Track shared tasks, plan meals, and keep events (including Theo care) in one place. Designed to run on a laptop on your home Wi‑Fi.
 
