@@ -18,11 +18,11 @@
   <main class="task-page">
     <header class="brand-block">
       <p class="brand-mark" id="userHeader">Loading...</p>
-      <p class="brand-sub">Check off what you finish. Daily tasks reopen tomorrow; reset the week when you start fresh.</p>
+      <p class="brand-sub">Daily tasks have a box for each day. Reset the week when you want a clean slate.</p>
     </header>
 
     <div class="progress-wrap">
-      <div class="progress-pill">Done <span id="doneCount">0</span> / <span id="totalCount">0</span></div>
+      <div class="progress-pill">Done <span id="doneCount">0</span> / <span id="totalCount">0</span> checks</div>
     </div>
 
     <div id="choreList" class="task-list"></div>
@@ -58,34 +58,14 @@
     }
 
     chores.forEach((chore, index) => {
-      const done = HomeTasks.isDone(chore, state);
-      const row = document.createElement("label");
-      row.className = "chore task-check" + (done ? " done" : "");
+      const row = HomeTasks.renderTaskRow(chore, state, updateDisplay);
       row.style.animationDelay = `${0.05 + index * 0.04}s`;
-      const days = chore.days_required ? chore.days_required : "This week";
-      const dailyNote = HomeTasks.isDaily(chore) ? " · resets tomorrow" : "";
-
-      row.innerHTML = `
-        <input type="checkbox" ${done ? "checked" : ""} />
-        <span class="task-check-body">
-          <span class="task-check-title">${chore.title}</span>
-          <span class="task-check-meta">${days}${dailyNote}</span>
-        </span>
-      `;
-
-      const checkbox = row.querySelector("input");
-      checkbox.addEventListener("change", () => {
-        const latest = HomeTasks.loadState();
-        HomeTasks.setDone(chore, checkbox.checked, latest);
-        updateDisplay();
-      });
-
       choreList.appendChild(row);
     });
 
-    const completed = chores.filter((c) => HomeTasks.isDone(c, state)).length;
-    document.getElementById("doneCount").textContent = completed;
-    document.getElementById("totalCount").textContent = chores.length;
+    const progress = HomeTasks.progressForChores(chores, state);
+    document.getElementById("doneCount").textContent = progress.done;
+    document.getElementById("totalCount").textContent = progress.total;
   }
 
   document.getElementById("resetWeekBtn").addEventListener("click", () => {

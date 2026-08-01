@@ -18,7 +18,7 @@
   <main class="page">
     <header class="brand-block">
       <p class="brand-mark">TK &amp; AX Home</p>
-      <p class="brand-sub">Check off tasks as you go. Daily ones reopen tomorrow; reset the board each week.</p>
+      <p class="brand-sub">Daily tasks get a check for each day. Reset the board when the week is done.</p>
       <div id="personButtons" class="person-buttons"></div>
     </header>
 
@@ -69,7 +69,7 @@
     const users = await fetchUsers();
     const state = HomeTasks.loadState();
     document.getElementById('weekHint').textContent =
-      `${weekLabel(state.weekId)} — check tasks here, or open your page with the buttons above. Daily tasks clear overnight; use Reset week for everything else.`;
+      `${weekLabel(state.weekId)} — Daily/Weekdays tasks show Mon–Sun (or Mon–Fri) boxes. Other tasks are once per week. Use Reset week for a clean slate.`;
 
     container.innerHTML = '';
 
@@ -85,10 +85,10 @@
 
       const heading = document.createElement('div');
       heading.className = 'task-group-head';
-      const doneCount = chores.filter((c) => HomeTasks.isDone(c, state)).length;
+      const progress = HomeTasks.progressForChores(chores, state);
       heading.innerHTML = `
         <strong>${user.name}</strong>
-        <span>${doneCount}/${chores.length} done</span>
+        <span>${progress.done}/${progress.total} checks</span>
         <a href="/user.html?id=${user.id}">${user.name}'s page</a>
       `;
       group.appendChild(heading);
@@ -100,24 +100,9 @@
         group.appendChild(empty);
       } else {
         chores.forEach((chore) => {
-          const done = HomeTasks.isDone(chore, state);
-          const row = document.createElement('label');
-          row.className = 'task-check' + (done ? ' done' : '');
-          const days = chore.days_required ? chore.days_required : 'This week';
-          row.innerHTML = `
-            <input type="checkbox" ${done ? 'checked' : ''} data-chore-id="${chore.id}" />
-            <span class="task-check-body">
-              <span class="task-check-title">${chore.title}</span>
-              <span class="task-check-meta">${days}${HomeTasks.isDaily(chore) ? ' · resets tomorrow' : ''}</span>
-            </span>
-          `;
-          const checkbox = row.querySelector('input');
-          checkbox.addEventListener('change', () => {
-            const latest = HomeTasks.loadState();
-            HomeTasks.setDone(chore, checkbox.checked, latest);
-            loadChoreOverview();
-          });
-          group.appendChild(row);
+          group.appendChild(
+            HomeTasks.renderTaskRow(chore, state, loadChoreOverview)
+          );
         });
       }
 
