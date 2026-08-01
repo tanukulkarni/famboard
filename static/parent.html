@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Parent Dashboard</title>
+  <title>Manage — TK &amp; AX Home</title>
   <link rel="stylesheet" href="/static/style.css">
   <style>
     body {
@@ -15,16 +15,19 @@
       margin: auto;
     }
     h1 {
-      font-size: 2.5em;
+      font-size: 2.2em;
       text-align: center;
       margin-bottom: 30px;
+    }
+    h2.section {
+      margin-top: 48px;
     }
     form {
       background: #ffffff;
       border: 1px solid #ddd;
       border-radius: 8px;
       padding: 20px;
-      margin-bottom: 40px;
+      margin-bottom: 24px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     form h2 {
@@ -40,6 +43,7 @@
       margin-top: 5px;
       border: 1px solid #ccc;
       border-radius: 5px;
+      box-sizing: border-box;
     }
     button {
       margin-top: 20px;
@@ -58,6 +62,7 @@
       border-collapse: collapse;
       background: white;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
     }
     th, td {
       border: 1px solid #e0e0e0;
@@ -67,32 +72,39 @@
     th {
       background: #f8f9fa;
     }
-    .deactivate-btn {
+    .deactivate-btn, .delete-btn {
       background-color: #dc3545;
       color: white;
       border: none;
       padding: 8px 14px;
       border-radius: 5px;
       cursor: pointer;
+      margin-top: 0;
+    }
+    .hint {
+      color: #666;
+      font-size: 0.9em;
+      margin: 0 0 8px;
     }
   </style>
 </head>
 <body>
   <nav>
     <a href="/dashboard">Dashboard</a>
-    <a href="/parent" class="active">Parent</a>
+    <a href="/parent" class="active">Manage</a>
     <a href="/setup">Setup</a>
   </nav>
 
-  <h1>Parent Dashboard</h1>
+  <h1>Manage Home Board</h1>
 
   <form id="choreForm">
-    <h2>Add a New Chore</h2>
+    <h2>Add a Task</h2>
+    <p class="hint">For tracking household to-dos. Reward is optional (defaults to 0).</p>
     <label>Title:
       <input type="text" id="title" required />
     </label>
-    <label>Reward ($):
-      <input type="number" step="0.01" id="reward" required />
+    <label>Reward (optional $):
+      <input type="number" step="0.01" id="reward" value="0" />
     </label>
     <label>Assign To:
       <select id="assigned_to"></select>
@@ -106,19 +118,81 @@
     <label>Notes:
       <textarea id="notes"></textarea>
     </label>
-    <button type="submit">Add Chore</button>
+    <button type="submit">Add Task</button>
   </form>
 
-  <h2>Active Chores</h2>
+  <h2>Active Tasks</h2>
   <table id="choreTable">
     <thead>
       <tr>
         <th>Title</th>
-        <th>Reward</th>
         <th>Assigned To</th>
         <th>Days</th>
         <th>Expires</th>
         <th>Notes</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2 class="section">Meals</h2>
+  <form id="mealForm">
+    <h2>Add a Meal</h2>
+    <label>Day (e.g. Mon or Monday):
+      <input type="text" id="meal_day" required />
+    </label>
+    <label>Meal:
+      <input type="text" id="meal_name" required />
+    </label>
+    <label>Type:
+      <select id="meal_type">
+        <option value="dinner">dinner</option>
+        <option value="lunch">lunch</option>
+        <option value="breakfast">breakfast</option>
+        <option value="other">other</option>
+      </select>
+    </label>
+    <button type="submit">Add Meal</button>
+  </form>
+
+  <table id="mealTable">
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th>Meal</th>
+        <th>Type</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2 class="section">Events &amp; Theo Care</h2>
+  <form id="eventForm">
+    <h2>Add an Event</h2>
+    <label>Date:
+      <input type="date" id="event_date" required />
+    </label>
+    <label>Title:
+      <input type="text" id="event_title" required />
+    </label>
+    <label>Time (optional):
+      <input type="text" id="event_time" placeholder="e.g. 10:00 AM" />
+    </label>
+    <label>Details:
+      <textarea id="event_details" placeholder="e.g. Theo — heartworm meds"></textarea>
+    </label>
+    <button type="submit">Add Event</button>
+  </form>
+
+  <table id="eventTable">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Title</th>
+        <th>Time</th>
+        <th>Details</th>
         <th>Action</th>
       </tr>
     </thead>
@@ -166,7 +240,6 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${chore.title}</td>
-          <td>$${chore.reward.toFixed(2)}</td>
           <td>
             <select onchange="reassignChore(${chore.id}, this.value)">
               ${users.map(u => `<option value="${u.id}" ${u.id === chore.user.id ? 'selected' : ''}>${u.name}</option>`).join('')}
@@ -183,9 +256,10 @@
 
     document.getElementById('choreForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const rewardRaw = document.getElementById('reward').value;
       const payload = {
         title: document.getElementById('title').value,
-        reward: parseFloat(document.getElementById('reward').value),
+        reward: rewardRaw === '' ? 0 : parseFloat(rewardRaw),
         assigned_to: parseInt(document.getElementById('assigned_to').value),
         days_required: document.getElementById('days_required').value,
         expires_by: document.getElementById('expires_by').value || null,
@@ -197,12 +271,15 @@
         body: JSON.stringify(payload)
       });
       e.target.reset();
+      document.getElementById('reward').value = '0';
+      await populateUserDropdown();
       loadChores();
     });
 
     async function populateUserDropdown() {
       const users = await fetchUsers();
       const select = document.getElementById('assigned_to');
+      select.innerHTML = '';
       users.forEach(user => {
         const option = document.createElement('option');
         option.value = user.id;
@@ -211,8 +288,89 @@
       });
     }
 
+    async function loadMeals() {
+      const res = await fetch('/api/meals');
+      const meals = await res.json();
+      const tbody = document.querySelector('#mealTable tbody');
+      tbody.innerHTML = '';
+      meals.forEach(meal => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${meal.day || ''}</td>
+          <td>${meal.meal || ''}</td>
+          <td>${meal.type || ''}</td>
+          <td><button class="delete-btn" onclick="deleteMeal(${meal.id})">Delete</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function deleteMeal(id) {
+      await fetch(`/api/meals/${id}`, { method: 'DELETE' });
+      loadMeals();
+    }
+
+    document.getElementById('mealForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        day: document.getElementById('meal_day').value,
+        meal: document.getElementById('meal_name').value,
+        type: document.getElementById('meal_type').value
+      };
+      await fetch('/api/meals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      e.target.reset();
+      document.getElementById('meal_type').value = 'dinner';
+      loadMeals();
+    });
+
+    async function loadEvents() {
+      const res = await fetch('/api/events');
+      const events = await res.json();
+      const tbody = document.querySelector('#eventTable tbody');
+      tbody.innerHTML = '';
+      events.forEach(ev => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${ev.date || ''}</td>
+          <td>${ev.title || ''}</td>
+          <td>${ev.time || ''}</td>
+          <td>${ev.details || ''}</td>
+          <td><button class="delete-btn" onclick="deleteEvent(${ev.id})">Delete</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function deleteEvent(id) {
+      await fetch(`/api/events/${id}`, { method: 'DELETE' });
+      loadEvents();
+    }
+
+    document.getElementById('eventForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        date: document.getElementById('event_date').value,
+        title: document.getElementById('event_title').value,
+        time: document.getElementById('event_time').value || null,
+        details: document.getElementById('event_details').value || null
+      };
+      await fetch('/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      e.target.reset();
+      loadEvents();
+    });
+
     populateUserDropdown();
     loadChores();
+    loadMeals();
+    loadEvents();
   </script>
 </body>
 </html>

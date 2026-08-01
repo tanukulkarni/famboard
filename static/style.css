@@ -64,14 +64,6 @@ ul li {
   font-style: italic;
 }
 
-.praise {
-  background: #e7f5e6;
-  border-left: 5px solid #4CAF50;
-  padding: 10px 15px;
-  border-radius: 5px;
-  margin-top: 10px;
-}
-
 .chore-scroll {
   max-height: 165px;
   overflow-y: auto;

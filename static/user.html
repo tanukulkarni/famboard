@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>User Chore Page</title>
+  <title>My Tasks</title>
   <link rel="stylesheet" href="/static/style.css">
   <style>
     body {
@@ -16,11 +16,11 @@
     }
     h1 {
       text-align: center;
-      font-size: 2.5em;
+      font-size: 2.2em;
     }
-    .earnings {
+    .progress {
       text-align: center;
-      font-size: 1.5em;
+      font-size: 1.35em;
       margin-bottom: 30px;
     }
     .chore {
@@ -32,6 +32,7 @@
       border-radius: 10px;
       padding: 15px;
       margin-bottom: 15px;
+      gap: 12px;
     }
     .chore.done {
       background: #d8fbd8;
@@ -45,6 +46,7 @@
       color: white;
       border-radius: 6px;
       cursor: pointer;
+      white-space: nowrap;
     }
     .chore button:disabled {
       background: #888;
@@ -66,15 +68,16 @@
 <body>
   <nav>
     <a href="/dashboard">Dashboard</a>
-    <a href="/parent">Parent</a>
+    <a href="/parent">Manage</a>
+    <a href="/setup">Setup</a>
   </nav>
 
   <h1 id="userHeader">Loading...</h1>
-  <div class="earnings">💰 Total Earned: $<span id="totalEarned">0.00</span></div>
+  <div class="progress">Done: <span id="doneCount">0</span> / <span id="totalCount">0</span></div>
 
   <div id="choreList"></div>
 
-  <button class="reset-btn" onclick="resetChores()">🔄 Reset Completed Tasks</button>
+  <button class="reset-btn" onclick="resetChores()">Reset Completed Tasks</button>
 
 <script>
   const userId = new URLSearchParams(window.location.search).get('id');
@@ -83,7 +86,8 @@
   async function fetchUserName() {
     const res = await fetch(`/api/users/${userId}`);
     const data = await res.json();
-    document.getElementById("userHeader").textContent = `🏠 ${data.name}'s Chores`;
+    document.getElementById("userHeader").textContent = `${data.name}'s Tasks`;
+    document.title = `${data.name}'s Tasks`;
   }
 
   async function fetchChores() {
@@ -99,13 +103,6 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(doneIds));
   }
 
-  function calculateTotal(doneIds, chores) {
-    return chores
-      .filter(chore => doneIds.includes(chore.id))
-      .reduce((total, chore) => total + chore.reward, 0)
-      .toFixed(2);
-  }
-
   function renderChores(chores) {
     const choreList = document.getElementById("choreList");
     const doneIds = loadChoreStatus();
@@ -114,9 +111,10 @@
     chores.forEach(chore => {
       const div = document.createElement("div");
       div.className = "chore" + (doneIds.includes(chore.id) ? " done" : "");
+      const days = chore.days_required ? ` · ${chore.days_required}` : '';
 
       div.innerHTML = `
-        <span>${chore.title} - $${chore.reward.toFixed(2)}</span>
+        <span>${chore.title}${days}</span>
         <button ${doneIds.includes(chore.id) ? "disabled" : ""}>Mark Done</button>
       `;
 
@@ -130,7 +128,9 @@
       choreList.appendChild(div);
     });
 
-    document.getElementById("totalEarned").textContent = calculateTotal(doneIds, chores);
+    const completed = chores.filter(c => doneIds.includes(c.id)).length;
+    document.getElementById("doneCount").textContent = completed;
+    document.getElementById("totalCount").textContent = chores.length;
   }
 
   function resetChores() {

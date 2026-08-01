@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Initial Setup - Add Users</title>
+  <title>Setup — TK &amp; AX Home</title>
   <link rel="stylesheet" href="/static/style.css">
   <style>
     body {
@@ -29,6 +29,7 @@
       margin-top: 10px;
       border: 1px solid #ccc;
       border-radius: 5px;
+      box-sizing: border-box;
     }
     button {
       margin-top: 20px;
@@ -43,23 +44,28 @@
       margin-top: 20px;
       padding-left: 20px;
     }
+    .hint {
+      color: #666;
+      font-size: 0.95em;
+    }
   </style>
 </head>
 <body>
   <nav>
     <a href="/dashboard">Dashboard</a>
-    <a href="/parent">Parent</a>
+    <a href="/parent">Manage</a>
     <a href="/setup" class="active">Setup</a>
   </nav>
 
-  <h1>📅 Initial Setup</h1>
+  <h1>Setup</h1>
+  <p class="hint">Add people who have task lists (e.g. TK and AX). Theo's care items belong on Events, not here.</p>
   <form id="userForm">
-    <label for="username">Add Child's Name:</label>
-    <input type="text" id="username" required>
-    <button type="submit">Add User</button>
+    <label for="username">Add person:</label>
+    <input type="text" id="username" required placeholder="e.g. TK">
+    <button type="submit">Add Person</button>
   </form>
 
-  <h2>Current Users:</h2>
+  <h2>People</h2>
   <ul id="userList"></ul>
 
   <script>
@@ -74,7 +80,7 @@
       list.innerHTML = '';
       users.forEach(user => {
         const li = document.createElement('li');
-        li.innerHTML = `<strong>${user.name}</strong> — <a href="/user.html?id=${user.id}">Go to Chore Page</a>`;
+        li.innerHTML = `<strong>${user.name}</strong> — <a href="/user.html?id=${user.id}">Go to Task Page</a>`;
         list.appendChild(li);
       });
     }
