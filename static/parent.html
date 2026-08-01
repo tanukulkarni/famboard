@@ -5,88 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Manage — TK &amp; AX Home</title>
   <link rel="stylesheet" href="/static/style.css">
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f4f6f8;
-      color: #333;
-      padding: 40px;
-      max-width: 1000px;
-      margin: auto;
-    }
-    h1 {
-      font-size: 2.2em;
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    h2.section {
-      margin-top: 48px;
-    }
-    form {
-      background: #ffffff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 24px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    form h2 {
-      margin-top: 0;
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-    }
-    input, select, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box;
-    }
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      margin-bottom: 20px;
-    }
-    th, td {
-      border: 1px solid #e0e0e0;
-      padding: 10px;
-      text-align: left;
-    }
-    th {
-      background: #f8f9fa;
-    }
-    .deactivate-btn, .delete-btn {
-      background-color: #dc3545;
-      color: white;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 0;
-    }
-    .hint {
-      color: #666;
-      font-size: 0.9em;
-      margin: 0 0 8px;
-    }
-  </style>
 </head>
 <body>
   <nav>
@@ -95,109 +13,122 @@
     <a href="/setup">Setup</a>
   </nav>
 
-  <h1>Manage Home Board</h1>
+  <main class="page">
+    <header class="brand-block">
+      <p class="brand-mark">Manage</p>
+      <p class="brand-sub">Update tasks, meals, and Theo care from one place.</p>
+    </header>
 
-  <form id="choreForm">
-    <h2>Add a Task</h2>
-    <p class="hint">For tracking household to-dos. Reward is optional (defaults to 0).</p>
-    <label>Title:
-      <input type="text" id="title" required />
-    </label>
-    <label>Reward (optional $):
-      <input type="number" step="0.01" id="reward" value="0" />
-    </label>
-    <label>Assign To:
-      <select id="assigned_to"></select>
-    </label>
-    <label>Days Required (e.g. Mon,Wed,Fri or Daily):
-      <input type="text" id="days_required" />
-    </label>
-    <label>Expires By (optional):
-      <input type="date" id="expires_by" />
-    </label>
-    <label>Notes:
-      <textarea id="notes"></textarea>
-    </label>
-    <button type="submit">Add Task</button>
-  </form>
+    <div class="stack">
+      <form id="choreForm" class="form-panel">
+        <h2>Add a Task</h2>
+        <p class="hint">For tracking household to-dos. Reward is optional (defaults to 0).</p>
+        <label>Title
+          <input type="text" id="title" required />
+        </label>
+        <label>Reward (optional $)
+          <input type="number" step="0.01" id="reward" value="0" />
+        </label>
+        <label>Assign To
+          <select id="assigned_to"></select>
+        </label>
+        <label>Days Required (e.g. Mon,Wed,Fri or Daily)
+          <input type="text" id="days_required" />
+        </label>
+        <label>Expires By (optional)
+          <input type="date" id="expires_by" />
+        </label>
+        <label>Notes
+          <textarea id="notes"></textarea>
+        </label>
+        <button type="submit">Add Task</button>
+      </form>
 
-  <h2>Active Tasks</h2>
-  <table id="choreTable">
-    <thead>
-      <tr>
-        <th>Title</th>
-        <th>Assigned To</th>
-        <th>Days</th>
-        <th>Expires</th>
-        <th>Notes</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+      <div>
+        <h2 class="section-title">Active Tasks</h2>
+        <table id="choreTable">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Assigned To</th>
+              <th>Days</th>
+              <th>Expires</th>
+              <th>Notes</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
 
-  <h2 class="section">Meals</h2>
-  <form id="mealForm">
-    <h2>Add a Meal</h2>
-    <label>Day (e.g. Mon or Monday):
-      <input type="text" id="meal_day" required />
-    </label>
-    <label>Meal:
-      <input type="text" id="meal_name" required />
-    </label>
-    <label>Type:
-      <select id="meal_type">
-        <option value="dinner">dinner</option>
-        <option value="lunch">lunch</option>
-        <option value="breakfast">breakfast</option>
-        <option value="other">other</option>
-      </select>
-    </label>
-    <button type="submit">Add Meal</button>
-  </form>
+      <form id="mealForm" class="form-panel">
+        <h2>Add a Meal</h2>
+        <label>Day (e.g. Mon or Monday)
+          <input type="text" id="meal_day" required />
+        </label>
+        <label>Meal
+          <input type="text" id="meal_name" required />
+        </label>
+        <label>Type
+          <select id="meal_type">
+            <option value="dinner">dinner</option>
+            <option value="lunch">lunch</option>
+            <option value="breakfast">breakfast</option>
+            <option value="other">other</option>
+          </select>
+        </label>
+        <button type="submit">Add Meal</button>
+      </form>
 
-  <table id="mealTable">
-    <thead>
-      <tr>
-        <th>Day</th>
-        <th>Meal</th>
-        <th>Type</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+      <div>
+        <h2 class="section-title">Meals</h2>
+        <table id="mealTable">
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Meal</th>
+              <th>Type</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
 
-  <h2 class="section">Events &amp; Theo Care</h2>
-  <form id="eventForm">
-    <h2>Add an Event</h2>
-    <label>Date:
-      <input type="date" id="event_date" required />
-    </label>
-    <label>Title:
-      <input type="text" id="event_title" required />
-    </label>
-    <label>Time (optional):
-      <input type="text" id="event_time" placeholder="e.g. 10:00 AM" />
-    </label>
-    <label>Details:
-      <textarea id="event_details" placeholder="e.g. Theo — heartworm meds"></textarea>
-    </label>
-    <button type="submit">Add Event</button>
-  </form>
+      <form id="eventForm" class="form-panel">
+        <h2>Add an Event</h2>
+        <label>Date
+          <input type="date" id="event_date" required />
+        </label>
+        <label>Title
+          <input type="text" id="event_title" required />
+        </label>
+        <label>Time (optional)
+          <input type="text" id="event_time" placeholder="e.g. 10:00 AM" />
+        </label>
+        <label>Details
+          <textarea id="event_details" placeholder="e.g. Theo — heartworm meds"></textarea>
+        </label>
+        <button type="submit">Add Event</button>
+      </form>
 
-  <table id="eventTable">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Title</th>
-        <th>Time</th>
-        <th>Details</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+      <div>
+        <h2 class="section-title">Events &amp; Theo Care</h2>
+        <table id="eventTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Title</th>
+              <th>Time</th>
+              <th>Details</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
 
   <script>
     async function fetchUsers() {

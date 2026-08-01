@@ -5,65 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Tasks</title>
   <link rel="stylesheet" href="/static/style.css">
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #eef6ff;
-      color: #333;
-      padding: 30px;
-      max-width: 600px;
-      margin: auto;
-    }
-    h1 {
-      text-align: center;
-      font-size: 2.2em;
-    }
-    .progress {
-      text-align: center;
-      font-size: 1.35em;
-      margin-bottom: 30px;
-    }
-    .chore {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #ffffff;
-      border: 2px solid #b3dafe;
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 15px;
-      gap: 12px;
-    }
-    .chore.done {
-      background: #d8fbd8;
-      text-decoration: line-through;
-      opacity: 0.7;
-    }
-    .chore button {
-      padding: 8px 12px;
-      border: none;
-      background: #28a745;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .chore button:disabled {
-      background: #888;
-      cursor: default;
-    }
-    .reset-btn {
-      display: block;
-      margin: 30px auto 0;
-      padding: 10px 20px;
-      font-size: 1em;
-      border: none;
-      border-radius: 8px;
-      background: #ff6b6b;
-      color: white;
-      cursor: pointer;
-    }
-  </style>
 </head>
 <body>
   <nav>
@@ -72,12 +13,20 @@
     <a href="/setup">Setup</a>
   </nav>
 
-  <h1 id="userHeader">Loading...</h1>
-  <div class="progress">Done: <span id="doneCount">0</span> / <span id="totalCount">0</span></div>
+  <main class="task-page">
+    <header class="brand-block">
+      <p class="brand-mark" id="userHeader">Loading...</p>
+      <p class="brand-sub">Mark tasks done as you go. Reset anytime.</p>
+    </header>
 
-  <div id="choreList"></div>
+    <div class="progress-wrap">
+      <div class="progress-pill">Done <span id="doneCount">0</span> / <span id="totalCount">0</span></div>
+    </div>
 
-  <button class="reset-btn" onclick="resetChores()">Reset Completed Tasks</button>
+    <div id="choreList" class="task-list"></div>
+
+    <button class="reset-btn" onclick="resetChores()">Reset Completed Tasks</button>
+  </main>
 
 <script>
   const userId = new URLSearchParams(window.location.search).get('id');
@@ -108,9 +57,17 @@
     const doneIds = loadChoreStatus();
     choreList.innerHTML = "";
 
-    chores.forEach(chore => {
+    if (!chores.length) {
+      choreList.innerHTML = '<p class="empty-note">No active tasks.</p>';
+      document.getElementById("doneCount").textContent = 0;
+      document.getElementById("totalCount").textContent = 0;
+      return;
+    }
+
+    chores.forEach((chore, index) => {
       const div = document.createElement("div");
       div.className = "chore" + (doneIds.includes(chore.id) ? " done" : "");
+      div.style.animationDelay = `${0.05 + index * 0.04}s`;
       const days = chore.days_required ? ` · ${chore.days_required}` : '';
 
       div.innerHTML = `

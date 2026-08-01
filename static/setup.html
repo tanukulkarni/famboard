@@ -5,50 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Setup — TK &amp; AX Home</title>
   <link rel="stylesheet" href="/static/style.css">
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f9f9fc;
-      max-width: 600px;
-      margin: auto;
-      padding: 40px;
-    }
-    h1 {
-      text-align: center;
-    }
-    form {
-      margin-top: 30px;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box;
-    }
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    ul {
-      margin-top: 20px;
-      padding-left: 20px;
-    }
-    .hint {
-      color: #666;
-      font-size: 0.95em;
-    }
-  </style>
 </head>
 <body>
   <nav>
@@ -57,16 +13,22 @@
     <a href="/setup" class="active">Setup</a>
   </nav>
 
-  <h1>Setup</h1>
-  <p class="hint">Add people who have task lists (e.g. TK and AX). Theo's care items belong on Events, not here.</p>
-  <form id="userForm">
-    <label for="username">Add person:</label>
-    <input type="text" id="username" required placeholder="e.g. TK">
-    <button type="submit">Add Person</button>
-  </form>
+  <main class="page narrow">
+    <header class="brand-block">
+      <p class="brand-mark">Setup</p>
+      <p class="brand-sub">Add people who have task lists. Theo care belongs on Events.</p>
+    </header>
 
-  <h2>People</h2>
-  <ul id="userList"></ul>
+    <form id="userForm" class="form-panel">
+      <label for="username">Add person
+        <input type="text" id="username" required placeholder="e.g. TK">
+      </label>
+      <button type="submit">Add Person</button>
+    </form>
+
+    <h2 class="section-title">People</h2>
+    <ul id="userList" class="people-list"></ul>
+  </main>
 
   <script>
     async function fetchUsers() {
@@ -78,9 +40,13 @@
       const users = await fetchUsers();
       const list = document.getElementById('userList');
       list.innerHTML = '';
+      if (!users.length) {
+        list.innerHTML = '<li class="empty-note">No people yet.</li>';
+        return;
+      }
       users.forEach(user => {
         const li = document.createElement('li');
-        li.innerHTML = `<strong>${user.name}</strong> — <a href="/user.html?id=${user.id}">Go to Task Page</a>`;
+        li.innerHTML = `<strong>${user.name}</strong> <a href="/user.html?id=${user.id}">Open tasks</a>`;
         list.appendChild(li);
       });
     }
