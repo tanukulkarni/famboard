@@ -18,7 +18,7 @@
   <main class="task-page">
     <header class="brand-block">
       <p class="brand-mark" id="userHeader">Loading...</p>
-      <p class="brand-sub">Daily tasks have a box for each day. Reset the week when you want a clean slate.</p>
+      <p class="brand-sub">Use the day columns for repeating tasks. Reset the week when you want a clean slate.</p>
     </header>
 
     <div class="progress-wrap">
@@ -57,11 +57,9 @@
       return;
     }
 
-    chores.forEach((chore, index) => {
-      const row = HomeTasks.renderTaskRow(chore, state, updateDisplay);
-      row.style.animationDelay = `${0.05 + index * 0.04}s`;
-      choreList.appendChild(row);
-    });
+    choreList.appendChild(
+      HomeTasks.renderTaskBoard(chores, state, updateDisplay)
+    );
 
     const progress = HomeTasks.progressForChores(chores, state);
     document.getElementById("doneCount").textContent = progress.done;

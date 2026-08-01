@@ -381,110 +381,192 @@ ul li strong {
   text-decoration: underline;
 }
 
-.task-row {
+.task-board-compact {
+  width: 100%;
+}
+
+.week-grid {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0 0 10px;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.65);
-  transition: background 0.15s ease, border-color 0.15s ease;
-  animation: riseIn 0.45s ease-out both;
+  gap: 2px;
+  width: 100%;
 }
 
-.task-row:hover {
-  border-color: rgba(31, 122, 92, 0.25);
+.week-grid-row {
+  display: grid;
+  grid-template-columns: minmax(96px, 1.4fr) repeat(7, minmax(28px, 1fr));
+  align-items: center;
+  gap: 4px;
+  padding: 8px 6px;
+  border-radius: 10px;
 }
 
-.task-row.done {
-  background: #e7f6ee;
+.week-grid-row:not(.week-grid-head):hover {
+  background: rgba(31, 122, 92, 0.05);
 }
 
-.task-row-title {
-  color: var(--ink);
-  font-weight: 700;
-  line-height: 1.3;
-}
-
-.task-row.done .task-row-title {
+.week-grid-row.done .week-grid-title {
   text-decoration: line-through;
   opacity: 0.75;
 }
 
-.task-row-meta {
+.week-grid-head {
+  padding-bottom: 6px;
+  margin-bottom: 2px;
+  border-bottom: 1px solid var(--line);
+}
+
+.week-grid-head .week-grid-task,
+.week-grid-head .week-grid-day {
   color: var(--muted);
-  font-size: 0.85rem;
-  font-weight: 500;
-  margin-top: -4px;
-}
-
-.day-checks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  width: 100%;
-}
-
-.day-check {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  margin: 0;
-  padding: 6px 7px;
-  min-width: 2.4rem;
-  border-radius: 10px;
-  background: #f3f8f5;
-  border: 1px solid var(--line);
-  cursor: pointer;
   font-size: 0.72rem;
   font-weight: 700;
-  color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
+  text-align: center;
 }
 
-.day-check input[type="checkbox"] {
-  width: 1rem;
-  height: 1rem;
+.week-grid-head .week-grid-task {
+  text-align: left;
+}
+
+.week-grid-task {
+  min-width: 0;
+  padding-right: 6px;
+}
+
+.week-grid-title {
+  display: block;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.25;
+  font-size: 0.95rem;
+}
+
+.week-grid-meta {
+  display: block;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.week-grid-day,
+.week-grid-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.week-grid-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  cursor: pointer;
+}
+
+.week-grid-check input[type="checkbox"] {
+  width: 1.05rem;
+  height: 1.05rem;
   margin: 0;
   accent-color: var(--accent);
   cursor: pointer;
 }
 
-.task-once {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  padding: 6px 10px;
-  border-radius: 10px;
-  background: #f3f8f5;
-  border: 1px solid var(--line);
-  cursor: pointer;
-  font-weight: 650;
-  color: var(--ink-soft);
+.week-grid-skip {
+  color: #c5d2cb;
+  font-size: 0.9rem;
+  line-height: 1;
 }
 
-.task-once input[type="checkbox"] {
+.once-list {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.once-list-label {
+  margin: 0 0 2px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.once-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.once-row:hover {
+  border-color: rgba(31, 122, 92, 0.25);
+}
+
+.once-row.done {
+  background: #e7f6ee;
+}
+
+.once-row.done .once-row-title {
+  text-decoration: line-through;
+  opacity: 0.75;
+}
+
+.once-row input[type="checkbox"] {
   width: 1.1rem;
   height: 1.1rem;
   margin: 0;
   accent-color: var(--accent);
+  flex-shrink: 0;
   cursor: pointer;
 }
 
-.task-list .task-row {
-  background: var(--panel-solid);
-  box-shadow: var(--shadow);
+.once-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
-.task-list .task-row.done {
-  background: #e7f6ee;
+.once-row-title {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.once-row-meta {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.task-list .task-board-compact {
+  background: var(--panel-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px;
+}
+
+@media (max-width: 520px) {
+  .week-grid-row {
+    grid-template-columns: minmax(72px, 1.1fr) repeat(7, minmax(22px, 1fr));
+    gap: 2px;
+    padding: 8px 2px;
+  }
+
+  .week-grid-check input[type="checkbox"] {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
 }
 
 #quoteCard blockquote,

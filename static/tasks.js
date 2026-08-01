@@ -139,64 +139,109 @@
     });
   }
 
-  function renderTaskRow(chore, state, onChange) {
-    const days = dayKeysForChore(chore);
-    const fullyDone = isFullyDone(chore, state);
-    const row = document.createElement('div');
-    row.className = 'task-row' + (fullyDone ? ' done' : '');
+  function shortDay(day) {
+    return day.slice(0, 1);
+  }
 
-    const title = document.createElement('div');
-    title.className = 'task-row-title';
-    title.textContent = chore.title;
+  /** Compact board: one shared Mon–Sun header, aligned checkboxes per task. */
+  function renderTaskBoard(chores, state, onChange) {
+    const wrap = document.createElement('div');
+    wrap.className = 'task-board-compact';
 
-    const meta = document.createElement('div');
-    meta.className = 'task-row-meta';
-    if (days) {
-      const p = progressForChore(chore, state);
-      meta.textContent = `${chore.days_required || 'This week'} · ${p.done}/${p.total} days`;
-    } else {
-      meta.textContent = chore.days_required ? `${chore.days_required} · once this week` : 'Once this week';
+    const multi = chores.filter((c) => dayKeysForChore(c));
+    const once = chores.filter((c) => !dayKeysForChore(c));
+
+    if (multi.length) {
+      const grid = document.createElement('div');
+      grid.className = 'week-grid';
+
+      const head = document.createElement('div');
+      head.className = 'week-grid-row week-grid-head';
+      head.innerHTML = `<span class="week-grid-task">Task</span>${ALL_DAYS.map(
+        (d) => `<span class="week-grid-day">${shortDay(d)}</span>`
+      ).join('')}`;
+      grid.appendChild(head);
+
+      multi.forEach((chore) => {
+        const allowed = new Set(dayKeysForChore(chore));
+        const p = progressForChore(chore, state);
+        const row = document.createElement('div');
+        row.className =
+          'week-grid-row' + (isFullyDone(chore, state) ? ' done' : '');
+
+        const name = document.createElement('div');
+        name.className = 'week-grid-task';
+        name.innerHTML = `<span class="week-grid-title">${chore.title}</span>
+          <span class="week-grid-meta">${chore.days_required || ''} · ${p.done}/${p.total}</span>`;
+        row.appendChild(name);
+
+        ALL_DAYS.forEach((day) => {
+          const cell = document.createElement('div');
+          cell.className = 'week-grid-cell';
+          if (!allowed.has(day)) {
+            cell.innerHTML = '<span class="week-grid-skip">·</span>';
+          } else {
+            const label = document.createElement('label');
+            label.className = 'week-grid-check';
+            const checked = isDayDone(chore, day, state);
+            label.innerHTML = `<input type="checkbox" ${checked ? 'checked' : ''} aria-label="${chore.title} ${day}" />`;
+            label.querySelector('input').addEventListener('change', (e) => {
+              const latest = loadState();
+              setDayDone(chore, day, e.target.checked, latest);
+              if (onChange) onChange();
+            });
+            cell.appendChild(label);
+          }
+          row.appendChild(cell);
+        });
+
+        grid.appendChild(row);
+      });
+
+      wrap.appendChild(grid);
     }
 
-    row.appendChild(title);
-    row.appendChild(meta);
-
-    if (days) {
-      const dayRow = document.createElement('div');
-      dayRow.className = 'day-checks';
-      days.forEach((day) => {
-        const label = document.createElement('label');
-        label.className = 'day-check';
-        const checked = isDayDone(chore, day, state);
-        label.innerHTML = `
-          <input type="checkbox" ${checked ? 'checked' : ''} data-day="${day}" />
-          <span>${day}</span>
+    if (once.length) {
+      const list = document.createElement('div');
+      list.className = 'once-list';
+      if (multi.length) {
+        const label = document.createElement('p');
+        label.className = 'once-list-label';
+        label.textContent = 'Once this week';
+        list.appendChild(label);
+      }
+      once.forEach((chore) => {
+        const row = document.createElement('label');
+        row.className =
+          'once-row' + (isWeekDone(chore, state) ? ' done' : '');
+        const checked = isWeekDone(chore, state);
+        row.innerHTML = `
+          <input type="checkbox" ${checked ? 'checked' : ''} />
+          <span class="once-row-text">
+            <span class="once-row-title">${chore.title}</span>
+            <span class="once-row-meta">${chore.days_required || 'This week'}</span>
+          </span>
         `;
-        label.querySelector('input').addEventListener('change', (e) => {
+        row.querySelector('input').addEventListener('change', (e) => {
           const latest = loadState();
-          setDayDone(chore, day, e.target.checked, latest);
+          setWeekDone(chore, e.target.checked, latest);
           if (onChange) onChange();
         });
-        dayRow.appendChild(label);
+        list.appendChild(row);
       });
-      row.appendChild(dayRow);
-    } else {
-      const once = document.createElement('label');
-      once.className = 'task-once';
-      const checked = isWeekDone(chore, state);
-      once.innerHTML = `
-        <input type="checkbox" ${checked ? 'checked' : ''} />
-        <span>Done this week</span>
-      `;
-      once.querySelector('input').addEventListener('change', (e) => {
-        const latest = loadState();
-        setWeekDone(chore, e.target.checked, latest);
-        if (onChange) onChange();
-      });
-      row.appendChild(once);
+      wrap.appendChild(list);
     }
 
-    return row;
+    if (!chores.length) {
+      wrap.innerHTML = '<p class="empty-note">No active tasks</p>';
+    }
+
+    return wrap;
+  }
+
+  /** @deprecated use renderTaskBoard for groups; kept for single-chore callers */
+  function renderTaskRow(chore, state, onChange) {
+    return renderTaskBoard([chore], state, onChange);
   }
 
   async function fetchUsers() {
@@ -266,6 +311,7 @@
     resetWeek,
     clearLegacyKeys,
     renderTaskRow,
+    renderTaskBoard,
     fetchUsers,
     fillPeopleNav,
     fillPersonButtons,
