@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TK &amp; AX Home</title>
   <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/tasks.js"></script>
 </head>
 <body>
   <nav>
@@ -16,13 +17,17 @@
   <main class="page">
     <header class="brand-block">
       <p class="brand-mark">TK &amp; AX Home</p>
-      <p class="brand-sub">Tasks, meals, and Theo care — one shared board.</p>
+      <p class="brand-sub">Check off tasks as you go. Daily ones reopen tomorrow; reset the board each week.</p>
     </header>
 
     <div class="dashboard">
-      <section class="panel" id="choresCard">
-        <h2>Household Tasks</h2>
-        <div id="choreOverview" class="chore-scroll"></div>
+      <section class="panel panel-wide" id="choresCard">
+        <div class="panel-head">
+          <h2>Household Tasks</h2>
+          <button type="button" class="btn-secondary" id="resetWeekBtn">Reset week</button>
+        </div>
+        <p class="hint" id="weekHint"></p>
+        <div id="choreOverview" class="task-board"></div>
       </section>
 
       <section class="panel calendar">
@@ -54,9 +59,17 @@
     return await res.json();
   }
 
+  function weekLabel(weekId) {
+    return `Week ${weekId.replace('-W', ' · W')}`;
+  }
+
   async function loadChoreOverview() {
     const container = document.getElementById('choreOverview');
     const users = await fetchUsers();
+    const state = HomeTasks.loadState();
+    document.getElementById('weekHint').textContent =
+      `${weekLabel(state.weekId)} — tap a task to mark it done. Daily tasks clear overnight; use Reset week for everything else.`;
+
     container.innerHTML = '';
 
     if (!users.length) {
@@ -66,20 +79,58 @@
 
     for (const user of users) {
       const chores = await fetchChoresForUser(user.id);
+      const group = document.createElement('div');
+      group.className = 'task-group';
+
+      const heading = document.createElement('div');
+      heading.className = 'task-group-head';
+      const doneCount = chores.filter((c) => HomeTasks.isDone(c, state)).length;
+      heading.innerHTML = `
+        <strong>${user.name}</strong>
+        <span>${doneCount}/${chores.length} done</span>
+        <a href="/user.html?id=${user.id}">Open page</a>
+      `;
+      group.appendChild(heading);
+
       if (!chores.length) {
-        const line = document.createElement('p');
-        line.innerHTML = `<strong>${user.name}</strong>: no active tasks`;
-        container.appendChild(line);
-        continue;
+        const empty = document.createElement('p');
+        empty.className = 'empty-note';
+        empty.textContent = 'No active tasks';
+        group.appendChild(empty);
+      } else {
+        chores.forEach((chore) => {
+          const done = HomeTasks.isDone(chore, state);
+          const row = document.createElement('label');
+          row.className = 'task-check' + (done ? ' done' : '');
+          const days = chore.days_required ? chore.days_required : 'This week';
+          row.innerHTML = `
+            <input type="checkbox" ${done ? 'checked' : ''} data-chore-id="${chore.id}" />
+            <span class="task-check-body">
+              <span class="task-check-title">${chore.title}</span>
+              <span class="task-check-meta">${days}${HomeTasks.isDaily(chore) ? ' · resets tomorrow' : ''}</span>
+            </span>
+          `;
+          const checkbox = row.querySelector('input');
+          checkbox.addEventListener('change', () => {
+            const latest = HomeTasks.loadState();
+            HomeTasks.setDone(chore, checkbox.checked, latest);
+            loadChoreOverview();
+          });
+          group.appendChild(row);
+        });
       }
-      chores.forEach(chore => {
-        const line = document.createElement('p');
-        const days = chore.days_required ? ` (${chore.days_required})` : '';
-        line.innerHTML = `<strong>${user.name}</strong>: ${chore.title}${days}`;
-        container.appendChild(line);
-      });
+
+      container.appendChild(group);
     }
   }
+
+  document.getElementById('resetWeekBtn').addEventListener('click', async () => {
+    if (!confirm('Clear all task checkmarks for this week?')) return;
+    const users = await fetchUsers();
+    HomeTasks.resetWeek();
+    HomeTasks.clearLegacyKeys(users.map((u) => u.id));
+    loadChoreOverview();
+  });
 
   async function loadMeals() {
     const list = document.getElementById('mealsList');

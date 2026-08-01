@@ -249,6 +249,145 @@ ul li strong {
   color: var(--ink);
 }
 
+.panel-wide {
+  grid-column: 1 / -1;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.panel-head h2 {
+  margin: 0;
+}
+
+.btn-secondary {
+  margin-top: 0;
+  background: transparent;
+  color: var(--accent-deep);
+  border: 1px solid rgba(31, 122, 92, 0.35);
+  padding: 8px 14px;
+  font-size: 0.9rem;
+}
+
+.btn-secondary:hover {
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+}
+
+.task-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.task-group {
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.task-group-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.92rem;
+}
+
+.task-group-head strong {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+}
+
+.task-group-head span {
+  color: var(--muted);
+  margin-right: auto;
+}
+
+.task-group-head a {
+  color: var(--accent-deep);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.task-group-head a:hover {
+  text-decoration: underline;
+}
+
+.task-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 0 8px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.task-check:hover {
+  background: rgba(31, 122, 92, 0.06);
+  border-color: rgba(31, 122, 92, 0.15);
+}
+
+.task-check.done {
+  background: #e7f6ee;
+}
+
+.task-check input[type="checkbox"] {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 3px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.task-check-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.task-check-title {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.task-check.done .task-check-title {
+  text-decoration: line-through;
+  opacity: 0.75;
+}
+
+.task-check-meta {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.task-list .task-check {
+  background: var(--panel-solid);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  margin-bottom: 0;
+}
+
+.task-list .task-check.done {
+  background: #e7f6ee;
+}
+
 #quoteCard blockquote,
 .quote blockquote {
   font-family: var(--font-display);
@@ -303,7 +442,7 @@ label {
   color: var(--ink-soft);
 }
 
-input,
+input:not([type="checkbox"]):not([type="radio"]),
 select,
 textarea {
   width: 100%;
@@ -317,7 +456,7 @@ textarea {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-input:focus,
+input:not([type="checkbox"]):not([type="radio"]):focus,
 select:focus,
 textarea:focus {
   outline: none;
