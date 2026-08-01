@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
     name TEXT NOT NULL
 )
 ''')
-print("✅ users table created")
+print("users table created")
 
 # --- Chores Table ---
 cursor.execute('''
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS chores (
     FOREIGN KEY (assigned_to) REFERENCES users(id)
 )
 ''')
-print("✅ chores table created")
+print("chores table created")
 
 # --- Meals Table ---
 cursor.execute('''
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS meals (
     type TEXT
 )
 ''')
-print("✅ meals table created")
+print("meals table created")
 
 # --- Events Table ---
 cursor.execute('''
@@ -54,21 +54,8 @@ CREATE TABLE IF NOT EXISTS events (
     details TEXT
 )
 ''')
-print("✅ events table created")
-
-# --- Goals Table ---
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS goals (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER,
-    description TEXT,
-    target_amount REAL,
-    saved_amount REAL,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-)
-''')
-print("✅ goals table created")
+print("events table created")
 
 conn.commit()
 conn.close()
-print("\u2705 All tables created and initialized.")
+print("All tables created and initialized.")

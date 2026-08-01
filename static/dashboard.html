@@ -3,67 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Family Dashboard</title>
+  <title>Antique Family Planner</title>
   <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/tasks.js"></script>
 </head>
 <body>
   <nav>
     <a href="/dashboard" class="active">Dashboard</a>
-    <a href="/parent">Parent</a>
+    <span id="peopleNav" class="people-nav"></span>
+    <a href="/parent">Manage</a>
     <a href="/setup">Setup</a>
   </nav>
 
-  <h1>🏠 Family Dashboard</h1>
-  <div class="dashboard">
+  <main class="page">
+    <header class="brand-block">
+      <p class="brand-mark">Antique Family Planner</p>
+      <p class="brand-sub">Check off the day columns as you go. Reset the board when the week is done.</p>
+      <div id="personButtons" class="person-buttons"></div>
+    </header>
 
-    <div class="card" id="choresCard">
-      <h2>🧼 All Active Chores</h2>
-      <div id="choreOverview" class="chore-scroll"></div>
+    <div class="dashboard">
+      <section class="panel panel-wide" id="choresCard">
+        <div class="panel-head">
+          <h2>Household Tasks</h2>
+          <button type="button" class="btn-secondary" id="resetWeekBtn">Reset week</button>
+        </div>
+        <p class="hint" id="weekHint"></p>
+        <div id="choreOverview" class="task-board"></div>
+      </section>
+
+      <section class="panel calendar">
+        <h2>Events &amp; Theo Care</h2>
+        <ul id="eventsList"></ul>
+      </section>
+
+      <section class="panel">
+        <h2>Meal Plan</h2>
+        <ul id="mealsList"></ul>
+      </section>
+
+      <section class="panel quote" id="quoteCard">
+        <h2>Quote of the Day</h2>
+        <blockquote id="quoteText">Loading...</blockquote>
+        <footer id="quoteAuthor"></footer>
+      </section>
     </div>
+  </main>
 
-
-    <div class="card calendar">
-      <h2>📅 This Week's Events</h2>
-      <ul>
-        <li><strong>Mon:</strong> Soccer practice (5pm)</li>
-        <li><strong>Wed:</strong> Dentist appointment (11am)</li>
-        <li><strong>Fri:</strong> Pizza night!</li>
-      </ul>
-    </div>
-
-    <div class="card">
-      <h2>🍽️ Meal Plan</h2>
-      <p><strong>Tonight:</strong> <span class="meal">Spaghetti & Garlic Bread</span></p>
-      <p><strong>Tomorrow:</strong> <span class="meal">Grilled Chicken & Veggies</span></p>
-    </div>
-
-    <div class="card">
-      <h2>💰 Goals</h2>
-      <ul>
-        <li>User 1 savings: $8.00 / $20 for toy</li>
-        <li>User 2 goal: $5.00 / $10 for art kit</li>
-      </ul>
-    </div>
-
-    <div class="card">
-      <h2>✨ Motivator of the Week</h2>
-      <div class="praise">
-        "User 2 helped clean up without being asked. Amazing job!"
-      </div>
-    </div>
-
-    <div class="card" id="quoteCard">
-      <h2>🌟 Quote of the Day</h2>
-      <blockquote id="quoteText">Loading...</blockquote>
-      <footer id="quoteAuthor"></footer>
-    </div>
-
-
-  </div>
 <script>
   async function fetchUsers() {
-    const res = await fetch('/api/users');
-    return await res.json();
+    return HomeTasks.fetchUsers();
   }
 
   async function fetchChoresForUser(userId) {
@@ -71,38 +60,127 @@
     return await res.json();
   }
 
+  function weekLabel(weekId) {
+    return `Week ${weekId.replace('-W', ' · W')}`;
+  }
+
   async function loadChoreOverview() {
     const container = document.getElementById('choreOverview');
     const users = await fetchUsers();
+    const state = HomeTasks.loadState();
+    document.getElementById('weekHint').textContent =
+      `${weekLabel(state.weekId)} — M–S are days of the week. Dots mean that day doesn’t apply. Use Reset week for a clean slate.`;
+
     container.innerHTML = '';
+
+    if (!users.length) {
+      container.innerHTML = '<p class="empty-note">No people yet. Add TK and AX on Setup, or run seed_family.py.</p>';
+      return;
+    }
 
     for (const user of users) {
       const chores = await fetchChoresForUser(user.id);
-      chores.forEach(chore => {
-        const line = document.createElement('p');
-        line.innerHTML = `<strong>${user.name}</strong>: ${chore.title} — $${chore.reward.toFixed(2)} ${chore.days_required ? `(${chore.days_required})` : ''}`;
-        container.appendChild(line);
-      });
+      const group = document.createElement('div');
+      group.className = 'task-group';
+
+      const heading = document.createElement('div');
+      heading.className = 'task-group-head';
+      const progress = HomeTasks.progressForChores(chores, state);
+      heading.innerHTML = `
+        <strong>${user.name}</strong>
+        <span>${progress.done}/${progress.total} checks</span>
+        <a href="/user.html?id=${user.id}">${user.name}'s page</a>
+      `;
+      group.appendChild(heading);
+
+      if (!chores.length) {
+        const empty = document.createElement('p');
+        empty.className = 'empty-note';
+        empty.textContent = 'No active tasks';
+        group.appendChild(empty);
+      } else {
+        group.appendChild(
+          HomeTasks.renderTaskBoard(chores, state, loadChoreOverview)
+        );
+      }
+
+      container.appendChild(group);
     }
   }
 
-async function loadDailyQuote() {
-  try {
-    const response = await fetch('/api/quote');
-    const data = await response.json();
-    const quote = data[0];
-    document.getElementById('quoteText').textContent = `“${quote.q}”`;
-    document.getElementById('quoteAuthor').textContent = `— ${quote.a}`;
-  } catch (error) {
-    console.error('Error fetching the daily quote:', error);
-    document.getElementById('quoteText').textContent = "Stay positive and keep moving forward!";
-    document.getElementById('quoteAuthor').textContent = "";
-    console.log('Quote:', quote.q);
-    console.log('Author:', quote.a);
-  }
-}
+  document.getElementById('resetWeekBtn').addEventListener('click', async () => {
+    if (!confirm('Clear all task checkmarks for this week?')) return;
+    const users = await fetchUsers();
+    HomeTasks.resetWeek();
+    HomeTasks.clearLegacyKeys(users.map((u) => u.id));
+    loadChoreOverview();
+  });
 
+  async function loadMeals() {
+    const list = document.getElementById('mealsList');
+    try {
+      const res = await fetch('/api/meals');
+      const meals = await res.json();
+      list.innerHTML = '';
+      if (!meals.length) {
+        list.innerHTML = '<li class="empty-note">No meals planned yet.</li>';
+        return;
+      }
+      meals.forEach(m => {
+        const li = document.createElement('li');
+        const type = m.type ? ` · ${m.type}` : '';
+        li.innerHTML = `<strong>${m.day || 'Day'}:</strong> ${m.meal || ''}${type}`;
+        list.appendChild(li);
+      });
+    } catch (err) {
+      list.innerHTML = '<li class="empty-note">Could not load meals.</li>';
+    }
+  }
+
+  async function loadEvents() {
+    const list = document.getElementById('eventsList');
+    try {
+      const res = await fetch('/api/events');
+      const events = await res.json();
+      list.innerHTML = '';
+      if (!events.length) {
+        list.innerHTML = '<li class="empty-note">No upcoming events.</li>';
+        return;
+      }
+      events.forEach(ev => {
+        const li = document.createElement('li');
+        const time = ev.time ? ` (${ev.time})` : '';
+        const details = ev.details ? ` — ${ev.details}` : '';
+        li.innerHTML = `<strong>${ev.date || 'TBD'}:</strong> ${ev.title || ''}${time}${details}`;
+        list.appendChild(li);
+      });
+    } catch (err) {
+      list.innerHTML = '<li class="empty-note">Could not load events.</li>';
+    }
+  }
+
+  async function loadDailyQuote() {
+    try {
+      const response = await fetch('/api/quote');
+      const data = await response.json();
+      if (!Array.isArray(data) || !data[0]) {
+        throw new Error('Unexpected quote response');
+      }
+      const quote = data[0];
+      document.getElementById('quoteText').textContent = `\u201C${quote.q}\u201D`;
+      document.getElementById('quoteAuthor').textContent = `\u2014 ${quote.a}`;
+    } catch (error) {
+      console.error('Error fetching the daily quote:', error);
+      document.getElementById('quoteText').textContent = 'Stay positive and keep moving forward!';
+      document.getElementById('quoteAuthor').textContent = '';
+    }
+  }
+
+  HomeTasks.fillPeopleNav();
+  HomeTasks.fillPersonButtons('personButtons');
   loadChoreOverview();
+  loadMeals();
+  loadEvents();
   loadDailyQuote();
 </script>
 </body>
