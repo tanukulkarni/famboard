@@ -9,9 +9,11 @@
 <body>
   <nav>
     <a href="/dashboard">Dashboard</a>
+    <span id="peopleNav" class="people-nav"></span>
     <a href="/parent" class="active">Manage</a>
     <a href="/setup">Setup</a>
   </nav>
+  <script src="/static/tasks.js"></script>
 
   <main class="page">
     <header class="brand-block">
@@ -298,6 +300,7 @@
       loadEvents();
     });
 
+    HomeTasks.fillPeopleNav();
     populateUserDropdown();
     loadChores();
     loadMeals();

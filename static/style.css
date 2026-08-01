@@ -117,6 +117,64 @@ nav a.active::after {
   background: var(--accent);
 }
 
+.people-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 4px;
+  padding: 0 4px;
+  border-left: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+}
+
+.people-nav:empty {
+  display: none;
+}
+
+nav a.nav-person {
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+}
+
+nav a.nav-person:hover,
+nav a.nav-person.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+nav a.nav-person.active::after {
+  display: none;
+}
+
+.person-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.person-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 150px;
+  padding: 14px 22px;
+  border-radius: 14px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.05rem;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.person-btn:hover {
+  background: var(--accent-deep);
+  transform: translateY(-2px);
+}
+
 .page {
   width: min(1100px, calc(100% - 32px));
   margin: 0 auto;

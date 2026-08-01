@@ -9,9 +9,11 @@
 <body>
   <nav>
     <a href="/dashboard">Dashboard</a>
+    <span id="peopleNav" class="people-nav"></span>
     <a href="/parent">Manage</a>
     <a href="/setup" class="active">Setup</a>
   </nav>
+  <script src="/static/tasks.js"></script>
 
   <main class="page narrow">
     <header class="brand-block">
@@ -64,6 +66,7 @@
       displayUsers();
     });
 
+    HomeTasks.fillPeopleNav();
     displayUsers();
   </script>
 </body>

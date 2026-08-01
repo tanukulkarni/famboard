@@ -10,6 +10,7 @@
 <body>
   <nav>
     <a href="/dashboard">Dashboard</a>
+    <span id="peopleNav" class="people-nav"></span>
     <a href="/parent">Manage</a>
     <a href="/setup">Setup</a>
   </nav>
@@ -99,6 +100,7 @@
     renderChores(chores);
   }
 
+  HomeTasks.fillPeopleNav(userId);
   fetchUserName();
   updateDisplay();
 </script>

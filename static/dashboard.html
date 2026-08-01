@@ -10,6 +10,7 @@
 <body>
   <nav>
     <a href="/dashboard" class="active">Dashboard</a>
+    <span id="peopleNav" class="people-nav"></span>
     <a href="/parent">Manage</a>
     <a href="/setup">Setup</a>
   </nav>
@@ -18,6 +19,7 @@
     <header class="brand-block">
       <p class="brand-mark">TK &amp; AX Home</p>
       <p class="brand-sub">Check off tasks as you go. Daily ones reopen tomorrow; reset the board each week.</p>
+      <div id="personButtons" class="person-buttons"></div>
     </header>
 
     <div class="dashboard">
@@ -50,8 +52,7 @@
 
 <script>
   async function fetchUsers() {
-    const res = await fetch('/api/users');
-    return await res.json();
+    return HomeTasks.fetchUsers();
   }
 
   async function fetchChoresForUser(userId) {
@@ -68,7 +69,7 @@
     const users = await fetchUsers();
     const state = HomeTasks.loadState();
     document.getElementById('weekHint').textContent =
-      `${weekLabel(state.weekId)} — tap a task to mark it done. Daily tasks clear overnight; use Reset week for everything else.`;
+      `${weekLabel(state.weekId)} — check tasks here, or open your page with the buttons above. Daily tasks clear overnight; use Reset week for everything else.`;
 
     container.innerHTML = '';
 
@@ -88,7 +89,7 @@
       heading.innerHTML = `
         <strong>${user.name}</strong>
         <span>${doneCount}/${chores.length} done</span>
-        <a href="/user.html?id=${user.id}">Open page</a>
+        <a href="/user.html?id=${user.id}">${user.name}'s page</a>
       `;
       group.appendChild(heading);
 
@@ -192,6 +193,8 @@
     }
   }
 
+  HomeTasks.fillPeopleNav();
+  HomeTasks.fillPersonButtons('personButtons');
   loadChoreOverview();
   loadMeals();
   loadEvents();

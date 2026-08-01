@@ -102,6 +102,55 @@
     });
   }
 
+  async function fetchUsers() {
+    const res = await fetch('/api/users');
+    return await res.json();
+  }
+
+  async function fillPeopleNav(activeUserId) {
+    const slot = document.getElementById('peopleNav');
+    if (!slot) return;
+    try {
+      const users = await fetchUsers();
+      if (!users.length) {
+        slot.innerHTML = '';
+        return;
+      }
+      slot.innerHTML = users
+        .map((u) => {
+          const active =
+            activeUserId != null && String(u.id) === String(activeUserId)
+              ? ' active'
+              : '';
+          return `<a class="nav-person${active}" href="/user.html?id=${u.id}">${u.name}</a>`;
+        })
+        .join('');
+    } catch (e) {
+      slot.innerHTML = '';
+    }
+  }
+
+  async function fillPersonButtons(containerId) {
+    const el = document.getElementById(containerId || 'personButtons');
+    if (!el) return;
+    try {
+      const users = await fetchUsers();
+      if (!users.length) {
+        el.innerHTML =
+          '<p class="empty-note">No people yet — add them on Setup.</p>';
+        return;
+      }
+      el.innerHTML = users
+        .map(
+          (u) =>
+            `<a class="person-btn" href="/user.html?id=${u.id}">${u.name}'s tasks</a>`
+        )
+        .join('');
+    } catch (e) {
+      el.innerHTML = '<p class="empty-note">Could not load people.</p>';
+    }
+  }
+
   global.HomeTasks = {
     getWeekId,
     isDaily,
@@ -112,6 +161,9 @@
     toggleDone,
     resetWeek,
     clearLegacyKeys,
+    fetchUsers,
+    fillPeopleNav,
+    fillPersonButtons,
     STORAGE_KEY,
   };
 })(window);
